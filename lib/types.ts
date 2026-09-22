@@ -43,3 +43,15 @@ export type ExclusiveReward = {
   image: string;
   isNew: boolean;
 };
+
+export type RegistrationStatus = "pending" | "approved" | "rejected";
+
+export type Registration = {
+  id: string;
+  name: string;
+  phone: string;
+  coach: string;
+  dob: string;
+  submittedAt: string;
+  status: RegistrationStatus;
+};

@@ -1,4 +1,4 @@
-import { ExclusiveReward, LeaderboardEntry, RewardItem, Team } from "./types";
+import { ExclusiveReward, LeaderboardEntry, Registration, RewardItem, Team } from "./types";
 
 export const TOURNAMENT = {
   name: "SUMMER CUP",
@@ -143,4 +143,13 @@ export const EXCLUSIVE_REWARDS: ExclusiveReward[] = [
   { id: "e1", number: "01", name: "Áo Phông Summer Cup", image: "jersey", isNew: true },
   { id: "e2", number: "02", name: "Lót Chuột Summer Cup", image: "mouse", isNew: true },
   { id: "e3", number: "03", name: "Mũ Lưỡi Trai Summer Cup", image: "cap", isNew: true },
+];
+
+export const REGISTRATIONS: Registration[] = [
+  { id: "g1", name: "Nguyễn Văn An", phone: "0901234567", coach: "AnPro99", dob: "12/03/2001", submittedAt: "20/09/2026 14:32", status: "pending" },
+  { id: "g2", name: "Trần Thị Bích", phone: "0912345678", coach: "BichLucky", dob: "05/07/2000", submittedAt: "20/09/2026 15:10", status: "approved" },
+  { id: "g3", name: "Lê Hoàng Cường", phone: "0923456789", coach: "CuongX", dob: "28/11/1999", submittedAt: "21/09/2026 09:02", status: "pending" },
+  { id: "g4", name: "Phạm Minh Đức", phone: "0934567890", coach: "DucFlash", dob: "17/01/2002", submittedAt: "21/09/2026 10:45", status: "rejected" },
+  { id: "g5", name: "Vũ Thu Hà", phone: "0945678901", coach: "HaStar", dob: "09/09/2001", submittedAt: "21/09/2026 11:20", status: "pending" },
+  { id: "g6", name: "Đặng Quốc Huy", phone: "0956789012", coach: "HuyKing", dob: "22/05/2000", submittedAt: "22/09/2026 08:15", status: "approved" },
 ];

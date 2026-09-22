@@ -33,10 +33,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <a
-          href="#dang-ky"
-          className="hidden md:inline-flex btn-cyber px-8 py-2.5 text-sm"
-        >
+        <a href="/login" className="hidden md:inline-flex btn-cyber px-8 py-2.5 text-sm">
           Đăng Nhập
         </a>
 
@@ -62,7 +59,7 @@ export default function Header() {
             </a>
           ))}
           <a
-            href="#dang-ky"
+            href="/login"
             onClick={() => setOpen(false)}
             className="btn-cyber px-6 py-2.5 text-sm text-center"
           >
