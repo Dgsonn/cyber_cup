@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
-import { TEAMS } from "@/lib/data";
 import { Team } from "@/lib/types";
 
-const EMPTY: Omit<Team, "id" | "prizes" | "venue" | "audience" | "contactName" | "contactPhone" | "note" | "tier"> = {
+const EMPTY = {
   name: "",
   requirement: "Không có yêu cầu",
   format: "1vs1",
@@ -15,30 +14,35 @@ const EMPTY: Omit<Team, "id" | "prizes" | "venue" | "audience" | "contactName" |
 };
 
 export default function TeamsAdmin() {
-  const [teams, setTeams] = useState<Team[]>(TEAMS);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY);
 
-  function addTeam() {
+  useEffect(() => {
+    fetch("/api/teams")
+      .then((r) => r.json())
+      .then((data) => setTeams(data.teams ?? []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function addTeam() {
     if (!form.name.trim()) return;
-    const newTeam: Team = {
-      ...form,
-      id: `t-${Date.now()}`,
-      tier: "GOLD",
-      venue: "Ban tổ chức tổ chức đều đặn hàng tuần.",
-      audience: "Tất cả Huấn Luyện Viên",
-      contactName: "—",
-      contactPhone: "—",
-      note: "Đội mới được thêm bởi quản trị viên.",
-      prizes: [],
-    };
-    setTeams((t) => [...t, newTeam]);
+    const res = await fetch("/api/teams", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    setTeams((t) => [...t, data.team]);
     setForm(EMPTY);
     setShowForm(false);
   }
 
-  function removeTeam(id: string) {
+  async function removeTeam(id: string) {
     setTeams((t) => t.filter((team) => team.id !== id));
+    await fetch(`/api/teams/${id}`, { method: "DELETE" });
   }
 
   return (
@@ -112,10 +116,17 @@ export default function TeamsAdmin() {
                 </td>
               </tr>
             ))}
-            {teams.length === 0 && (
+            {!loading && teams.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-6 text-white/40">
                   Chưa có đội nào.
+                </td>
+              </tr>
+            )}
+            {loading && (
+              <tr>
+                <td colSpan={7} className="py-6 text-white/40">
+                  Đang tải...
                 </td>
               </tr>
             )}

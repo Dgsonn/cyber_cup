@@ -44,6 +44,18 @@ export type ExclusiveReward = {
   isNew: boolean;
 };
 
+// Flat shape returned by the leaderboard API/DB (admin dashboard only).
+// The public-facing Leaderboard section still uses LeaderboardEntry above.
+export type LeaderboardRow = {
+  id: string;
+  rank: number;
+  name: string;
+  gold: number;
+  silver: number;
+  bronze: number;
+  points: number;
+};
+
 export type RegistrationStatus = "pending" | "approved" | "rejected";
 
 export type Registration = {

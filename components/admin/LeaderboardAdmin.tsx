@@ -1,24 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Trash2 } from "lucide-react";
-import { LEADERBOARD } from "@/lib/data";
-import { LeaderboardEntry } from "@/lib/types";
+import { LeaderboardRow } from "@/lib/types";
 
 export default function LeaderboardAdmin() {
-  const [entries, setEntries] = useState<LeaderboardEntry[]>(LEADERBOARD);
+  const [entries, setEntries] = useState<LeaderboardRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  function updatePoints(name: string, points: number) {
-    setEntries((list) =>
-      list
-        .map((e) => (e.name === name ? { ...e, points } : e))
-        .sort((a, b) => b.points - a.points)
-        .map((e, i) => ({ ...e, rank: i + 1 }))
-    );
+  useEffect(() => {
+    fetch("/api/leaderboard")
+      .then((r) => r.json())
+      .then((data) => setEntries(data.entries ?? []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  function setLocalPoints(id: string, points: number) {
+    setEntries((list) => list.map((e) => (e.id === id ? { ...e, points } : e)));
   }
 
-  function removeEntry(name: string) {
-    setEntries((list) => list.filter((e) => e.name !== name));
+  async function commitPoints(id: string, points: number) {
+    const res = await fetch(`/api/leaderboard/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ points }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setEntries(data.entries ?? []);
+    }
+  }
+
+  async function removeEntry(id: string) {
+    const res = await fetch(`/api/leaderboard/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      const data = await res.json();
+      setEntries(data.entries ?? []);
+    }
   }
 
   return (
@@ -40,23 +58,24 @@ export default function LeaderboardAdmin() {
           </thead>
           <tbody>
             {entries.map((entry) => (
-              <tr key={entry.name}>
+              <tr key={entry.id}>
                 <td>{entry.rank}</td>
                 <td className="col-left pl-4">{entry.name}</td>
-                <td>{entry.medals.gold}</td>
-                <td>{entry.medals.silver}</td>
-                <td>{entry.medals.bronze}</td>
+                <td>{entry.gold}</td>
+                <td>{entry.silver}</td>
+                <td>{entry.bronze}</td>
                 <td>
                   <input
                     type="number"
                     value={entry.points}
-                    onChange={(e) => updatePoints(entry.name, Number(e.target.value))}
+                    onChange={(e) => setLocalPoints(entry.id, Number(e.target.value))}
+                    onBlur={(e) => commitPoints(entry.id, Number(e.target.value))}
                     className="w-16 bg-ink border border-blue rounded px-2 py-1 text-center text-champagne font-bold text-sm focus:outline-none"
                   />
                 </td>
                 <td>
                   <button
-                    onClick={() => removeEntry(entry.name)}
+                    onClick={() => removeEntry(entry.id)}
                     className="text-red-bright hover:text-red"
                     aria-label={`Xóa ${entry.name}`}
                   >
@@ -65,6 +84,13 @@ export default function LeaderboardAdmin() {
                 </td>
               </tr>
             ))}
+            {!loading && entries.length === 0 && (
+              <tr>
+                <td colSpan={7} className="py-6 text-white/40">
+                  Chưa có dữ liệu.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

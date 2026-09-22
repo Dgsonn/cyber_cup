@@ -1,24 +1,48 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Globe, Trophy } from "lucide-react";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [destination, setDestination] = useState("/");
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!account.trim() || !password.trim()) {
       setError("Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
       setSuccess(false);
       return;
     }
+
     setError("");
-    setSuccess(true);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: account.trim(), password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Đăng nhập thất bại.");
+        setSuccess(false);
+        return;
+      }
+      setDestination(data.role === "admin" ? "/admin" : "/");
+      setSuccess(true);
+    } catch {
+      setError("Không thể kết nối tới server.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -55,14 +79,13 @@ export default function LoginPage() {
           {success ? (
             <div className="text-center py-4">
               <p className="text-sm text-[#2f7ef0] font-bold mb-1">Đăng nhập thành công!</p>
-              <p className="text-xs text-[#777]">
-                Đây là bản demo minh họa giao diện, chưa kết nối hệ thống thật.
-              </p>
+              <p className="text-xs text-[#777]">Chào mừng bạn quay lại Summer Cup.</p>
               <Link
-                href="/"
+                href={destination}
+                onClick={() => router.refresh()}
                 className="inline-block mt-4 text-sm font-bold text-white bg-red rounded px-6 py-2"
               >
-                Về trang chủ
+                {destination === "/admin" ? "Vào trang quản trị" : "Về trang chủ"}
               </Link>
             </div>
           ) : (
@@ -99,9 +122,10 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full py-2.5 rounded bg-red text-white font-bold text-sm uppercase mt-2 hover:brightness-95 transition-[filter]"
+                disabled={loading}
+                className="w-full py-2.5 rounded bg-red text-white font-bold text-sm uppercase mt-2 hover:brightness-95 transition-[filter] disabled:opacity-60"
               >
-                Đăng Nhập Ngay
+                {loading ? "Đang đăng nhập..." : "Đăng Nhập Ngay"}
               </button>
 
               <Link

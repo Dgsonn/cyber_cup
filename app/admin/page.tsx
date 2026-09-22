@@ -1,26 +1,12 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getCurrentSession } from "@/lib/auth";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 
-import { useState } from "react";
-import AdminSidebar, { AdminSection } from "@/components/admin/AdminSidebar";
-import OverviewSection from "@/components/admin/OverviewSection";
-import TeamsAdmin from "@/components/admin/TeamsAdmin";
-import LeaderboardAdmin from "@/components/admin/LeaderboardAdmin";
-import RewardsAdmin from "@/components/admin/RewardsAdmin";
-import RegistrationsAdmin from "@/components/admin/RegistrationsAdmin";
+export default async function AdminPage() {
+  const session = await getCurrentSession();
+  if (!session || session.role !== "admin") {
+    redirect("/login");
+  }
 
-export default function AdminPage() {
-  const [section, setSection] = useState<AdminSection>("overview");
-
-  return (
-    <div className="min-h-screen bg-bg flex">
-      <AdminSidebar active={section} onChange={setSection} />
-      <main className="flex-1 p-6 sm:p-8 overflow-x-hidden">
-        {section === "overview" && <OverviewSection />}
-        {section === "teams" && <TeamsAdmin />}
-        {section === "leaderboard" && <LeaderboardAdmin />}
-        {section === "rewards" && <RewardsAdmin />}
-        {section === "registrations" && <RegistrationsAdmin />}
-      </main>
-    </div>
-  );
+  return <AdminDashboard />;
 }

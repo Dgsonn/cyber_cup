@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String?  @unique
+  passwordHash String
+  role         String   @default("user") // "user" | "admin"
+  createdAt    DateTime @default(now())
+}
+
+model Team {
+  id            String  @id @default(cuid())
+  name          String
+  requirement   String
+  format        String
+  members       Int
+  maxMembers    Int
+  location      String
+  tier          String
+  venue         String
+  audience      String
+  contactName   String
+  contactPhone  String
+  note          String
+  prizes        Json
+  createdAt     DateTime @default(now())
+}
+
+model LeaderboardEntry {
+  id       String @id @default(cuid())
+  rank     Int
+  name     String @unique
+  gold     Int    @default(0)
+  silver   Int    @default(0)
+  bronze   Int    @default(0)
+  points   Int    @default(0)
+}
+
+model RewardItem {
+  id      String @id @default(cuid())
+  name    String
+  cost    Int
+  image   String
+  claimed Int    @default(0)
+  limit   Int
+}
+
+model Registration {
+  id          String   @id @default(cuid())
+  name        String
+  phone       String
+  coach       String
+  dob         String
+  submittedAt DateTime @default(now())
+  status      String   @default("pending") // "pending" | "approved" | "rejected"
+}

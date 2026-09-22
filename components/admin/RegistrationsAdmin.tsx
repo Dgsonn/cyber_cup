@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, X } from "lucide-react";
-import { REGISTRATIONS } from "@/lib/data";
 import { Registration, RegistrationStatus } from "@/lib/types";
 import { StatusBadge } from "./OverviewSection";
 
@@ -14,16 +13,29 @@ const TABS: { id: RegistrationStatus | "all"; label: string }[] = [
 ];
 
 export default function RegistrationsAdmin() {
-  const [regs, setRegs] = useState<Registration[]>(REGISTRATIONS);
+  const [regs, setRegs] = useState<Registration[]>([]);
+  const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<RegistrationStatus | "all">("all");
+
+  useEffect(() => {
+    fetch("/api/registrations")
+      .then((r) => r.json())
+      .then((data) => setRegs(data.registrations ?? []))
+      .finally(() => setLoading(false));
+  }, []);
 
   const filtered = useMemo(
     () => (tab === "all" ? regs : regs.filter((r) => r.status === tab)),
     [regs, tab]
   );
 
-  function setStatus(id: string, status: RegistrationStatus) {
+  async function setStatus(id: string, status: RegistrationStatus) {
     setRegs((list) => list.map((r) => (r.id === id ? { ...r, status } : r)));
+    await fetch(`/api/registrations/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
   }
 
   return (
@@ -64,7 +76,7 @@ export default function RegistrationsAdmin() {
                 <td>{r.phone}</td>
                 <td>{r.coach}</td>
                 <td>{r.dob}</td>
-                <td>{r.submittedAt}</td>
+                <td>{new Date(r.submittedAt).toLocaleString("vi-VN")}</td>
                 <td>
                   <StatusBadge status={r.status} />
                 </td>
@@ -88,7 +100,7 @@ export default function RegistrationsAdmin() {
                 </td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {!loading && filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-6 text-white/40">
                   Không có đơn nào.

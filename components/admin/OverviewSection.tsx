@@ -1,15 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Users, Trophy, Gift, ClipboardList } from "lucide-react";
-import { TEAMS, LEADERBOARD, REWARDS, REGISTRATIONS } from "@/lib/data";
+import { LeaderboardRow, Registration, RewardItem, Team } from "@/lib/types";
 
 export default function OverviewSection() {
-  const totalMembers = TEAMS.reduce((sum, t) => sum + t.members, 0);
-  const totalClaimed = REWARDS.reduce((sum, r) => sum + r.claimed, 0);
-  const pendingCount = REGISTRATIONS.filter((r) => r.status === "pending").length;
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
+  const [rewards, setRewards] = useState<RewardItem[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+
+  useEffect(() => {
+    fetch("/api/teams").then((r) => r.json()).then((d) => setTeams(d.teams ?? []));
+    fetch("/api/leaderboard").then((r) => r.json()).then((d) => setLeaderboard(d.entries ?? []));
+    fetch("/api/rewards").then((r) => r.json()).then((d) => setRewards(d.rewards ?? []));
+    fetch("/api/registrations").then((r) => r.json()).then((d) => setRegistrations(d.registrations ?? []));
+  }, []);
+
+  const totalMembers = teams.reduce((sum, t) => sum + t.members, 0);
+  const totalClaimed = rewards.reduce((sum, r) => sum + r.claimed, 0);
+  const pendingCount = registrations.filter((r) => r.status === "pending").length;
 
   const stats = [
-    { label: "Tổng số đội", value: TEAMS.length, icon: <Users size={20} />, color: "blue" as const },
+    { label: "Tổng số đội", value: teams.length, icon: <Users size={20} />, color: "blue" as const },
     { label: "Tổng tuyển thủ", value: totalMembers, icon: <Trophy size={20} />, color: "red" as const },
     { label: "Lượt đổi quà", value: totalClaimed, icon: <Gift size={20} />, color: "champagne" as const },
     { label: "Đơn chờ duyệt", value: pendingCount, icon: <ClipboardList size={20} />, color: "blue" as const },
@@ -46,11 +59,13 @@ export default function OverviewSection() {
         <div className="rounded-lg bg-bg-panel border border-white/10 p-5">
           <h2 className="text-sm font-bold text-white uppercase mb-4">Báo danh gần đây</h2>
           <div className="flex flex-col gap-3">
-            {REGISTRATIONS.slice(0, 5).map((r) => (
+            {registrations.slice(0, 5).map((r) => (
               <div key={r.id} className="flex items-center justify-between text-sm border-b border-white/5 pb-2 last:border-0 last:pb-0">
                 <div>
                   <div className="font-bold text-white">{r.name}</div>
-                  <div className="text-xs text-white/40">{r.coach} · {r.submittedAt}</div>
+                  <div className="text-xs text-white/40">
+                    {r.coach} · {new Date(r.submittedAt).toLocaleString("vi-VN")}
+                  </div>
                 </div>
                 <StatusBadge status={r.status} />
               </div>
@@ -61,8 +76,8 @@ export default function OverviewSection() {
         <div className="rounded-lg bg-bg-panel border border-white/10 p-5">
           <h2 className="text-sm font-bold text-white uppercase mb-4">Top bảng xếp hạng</h2>
           <div className="flex flex-col gap-3">
-            {LEADERBOARD.slice(0, 5).map((entry) => (
-              <div key={entry.name} className="flex items-center justify-between text-sm border-b border-white/5 pb-2 last:border-0 last:pb-0">
+            {leaderboard.slice(0, 5).map((entry) => (
+              <div key={entry.id} className="flex items-center justify-between text-sm border-b border-white/5 pb-2 last:border-0 last:pb-0">
                 <div className="flex items-center gap-2">
                   <span className="font-display text-champagne w-5">{entry.rank}</span>
                   <span className="font-bold text-white">{entry.name}</span>

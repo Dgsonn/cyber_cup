@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
@@ -8,6 +9,7 @@ import {
   Gift,
   ClipboardList,
   ArrowLeft,
+  LogOut,
 } from "lucide-react";
 
 export type AdminSection = "overview" | "teams" | "leaderboard" | "rewards" | "registrations";
@@ -27,6 +29,14 @@ export default function AdminSidebar({
   active: AdminSection;
   onChange: (section: AdminSection) => void;
 }) {
+  const router = useRouter();
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
+
   return (
     <aside className="w-60 shrink-0 bg-bg-header min-h-screen flex flex-col">
       <div className="h-[68px] flex items-center px-6 border-b border-white/10">
@@ -55,7 +65,7 @@ export default function AdminSidebar({
         })}
       </nav>
 
-      <div className="p-3 border-t border-white/10">
+      <div className="p-3 border-t border-white/10 flex flex-col gap-1">
         <Link
           href="/"
           className="flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-bold text-white/60 hover:text-blue-bright hover:bg-white/5 transition-colors"
@@ -63,6 +73,13 @@ export default function AdminSidebar({
           <ArrowLeft size={16} />
           Về trang chủ
         </Link>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-bold text-white/60 hover:text-red-bright hover:bg-white/5 transition-colors"
+        >
+          <LogOut size={16} />
+          Đăng xuất
+        </button>
       </div>
     </aside>
   );
