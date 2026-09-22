@@ -2,138 +2,145 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Users, CalendarDays } from "lucide-react";
 import { TEAMS } from "@/lib/data";
 import { Team } from "@/lib/types";
 import Modal from "./Modal";
 
-function TeamCard({ team, onOpen, index }: { team: Team; onOpen: () => void; index: number }) {
-  const pct = Math.round((team.members / team.maxMembers) * 100);
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: (index % 3) * 0.08 }}
-      className="rounded-2xl bg-bg-panel border border-white/10 p-5 flex flex-col gap-4 hover:border-mint/50 transition-colors"
-    >
-      <div className="flex items-center gap-3">
-        <div
-          className="w-12 h-12 rounded-full flex items-center justify-center font-display text-sm shrink-0"
-          style={{ backgroundColor: `${team.color}22`, color: team.color, border: `1px solid ${team.color}` }}
-        >
-          {team.shortName}
-        </div>
-        <div className="min-w-0">
-          <h3 className="font-display text-sm sm:text-base truncate">{team.name}</h3>
-          <span className="text-xs text-white/50">{team.tier}</span>
-        </div>
-      </div>
-
-      <div>
-        <div className="flex justify-between text-xs text-white/60 mb-1">
-          <span className="flex items-center gap-1">
-            <Users size={12} /> Thành viên
-          </span>
-          <span>
-            {team.members}/{team.maxMembers}
-          </span>
-        </div>
-        <div className="h-2 rounded-full bg-white/10 overflow-hidden">
-          <div
-            className="h-full rounded-full"
-            style={{ width: `${pct}%`, backgroundColor: team.color }}
-          />
-        </div>
-      </div>
-
-      <button
-        onClick={onOpen}
-        className="mt-auto text-sm font-bold rounded-full py-2 border border-mint/40 text-mint hover:bg-mint hover:text-bg-deep transition-colors"
-      >
-        Xem chi tiết
-      </button>
-    </motion.div>
-  );
-}
-
 export default function TeamsSection() {
   const [active, setActive] = useState<Team | null>(null);
+  const [tab, setTab] = useState<"list" | "create">("list");
 
   return (
-    <section id="doi-thi-dau" className="py-24 px-4">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="section-heading">
-          Danh sách <span className="text-mint">đội thi đấu</span>
+    <section id="danh-sach-doi" className="py-20 px-4">
+      <div className="max-w-5xl mx-auto">
+        <h2 className="title-page text-3xl sm:text-4xl mb-2">
+          <span className="tag text-6xl sm:text-7xl">Champions</span>
+          Danh sách đội
         </h2>
-        <p className="text-center text-white/60 mt-3 max-w-lg mx-auto text-sm">
-          8 đội tuyển mạnh nhất mùa giải tranh tài tại vòng loại trực tiếp Summer Cup {new Date().getFullYear()}.
-        </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
-          {TEAMS.map((team, i) => (
-            <TeamCard key={team.id} team={team} index={i} onOpen={() => setActive(team)} />
-          ))}
+        <div className="flex justify-center gap-4 my-8">
+          <button
+            onClick={() => setTab("list")}
+            className={`px-8 py-2.5 rounded-full text-sm font-bold uppercase transition-colors ${
+              tab === "list" ? "bg-blue-btn text-white" : "bg-white/5 text-white/60 hover:text-white"
+            }`}
+          >
+            Danh Sách Đội
+          </button>
+          <button
+            onClick={() => setTab("create")}
+            className={`px-8 py-2.5 rounded-full text-sm font-bold uppercase transition-colors ${
+              tab === "create" ? "bg-blue-btn text-white" : "bg-white/5 text-white/60 hover:text-white"
+            }`}
+          >
+            Tạo Đội
+          </button>
         </div>
+
+        {tab === "list" ? (
+          <div className="rounded-lg overflow-hidden overflow-x-auto">
+            <table className="table-ranking min-w-[640px]">
+              <thead>
+                <tr>
+                  <th className="w-[6%]">STT</th>
+                  <th className="w-[20%] col-left pl-4">Tên đội bóng</th>
+                  <th className="w-[16%]">Yêu cầu</th>
+                  <th className="w-[10%]">Thể thức</th>
+                  <th className="w-[10%]">Số lượng</th>
+                  <th className="w-[10%]">Địa chỉ</th>
+                  <th className="w-[20%]">Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {TEAMS.map((team, i) => (
+                  <motion.tr
+                    key={team.id}
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * 0.05 }}
+                  >
+                    <td>{i + 1}</td>
+                    <td className="col-left pl-4">
+                      <strong className="uppercase">{team.name}</strong>
+                    </td>
+                    <td>{team.requirement}</td>
+                    <td>{team.format}</td>
+                    <td>
+                      {team.members}/{team.maxMembers}
+                    </td>
+                    <td>{team.location}</td>
+                    <td>
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => setActive(team)}
+                          className="btn-cyber-outline px-4 py-1.5 text-xs"
+                        >
+                          Chi tiết
+                        </button>
+                        <a href="#dang-ky" className="btn-cyber px-4 py-1.5 text-xs">
+                          Gia nhập
+                        </a>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center text-white/50 text-sm py-16 border border-white/10 rounded-lg">
+            Tính năng tạo đội đang được phát triển. Vui lòng quay lại sau!
+          </div>
+        )}
       </div>
 
       <Modal open={!!active} onClose={() => setActive(null)} labelledBy="team-modal-title">
         {active && (
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center font-display text-sm shrink-0"
-                style={{ backgroundColor: `${active.color}22`, color: active.color, border: `1px solid ${active.color}` }}
-              >
-                {active.shortName}
-              </div>
-              <div>
-                <h3 id="team-modal-title" className="font-display text-lg">
-                  {active.name}
-                </h3>
-                <span className="text-xs text-gold">{active.tier}</span>
-              </div>
+            <h2
+              id="team-modal-title"
+              className="text-champagne uppercase text-xl font-black border-b-2 border-champagne pb-3 mb-4 shadow-champagne"
+            >
+              {active.name}
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-4 text-white/85">
+              <p><strong className="text-white">Đối tượng:</strong> {active.audience}</p>
+              <p><strong className="text-white">Loại giải:</strong> {active.tier}</p>
+              <p className="sm:col-span-2"><strong className="text-white">Địa điểm:</strong> {active.venue}</p>
+              <p><strong className="text-white">Người phụ trách:</strong> {active.contactName}</p>
+              <p><strong className="text-white">Liên hệ:</strong> {active.contactPhone}</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm mb-5">
-              <InfoRow icon={<Users size={14} />} label="Đối tượng" value={active.audience} />
-              <InfoRow icon={<MapPin size={14} />} label="Địa điểm" value={active.venue} />
-              <InfoRow icon={<CalendarDays size={14} />} label="Ngày thi đấu" value={active.eventDate} />
-              <InfoRow icon={<CalendarDays size={14} />} label="Hạn đăng ký" value={active.registerDeadline} />
-              <InfoRow icon={<Phone size={14} />} label="Liên hệ" value={`${active.contactName} · ${active.contactPhone}`} />
-            </div>
+            <hr className="border-champagne/20 my-4" />
 
-            <div className="mb-4">
-              <h4 className="font-bold text-mint text-sm mb-2">Phần thưởng</h4>
-              <div className="rounded-xl border border-white/10 overflow-hidden">
-                {active.prizes.map((p, i) => (
-                  <div
-                    key={p.rank}
-                    className={`flex justify-between px-4 py-2 text-sm ${i % 2 ? "bg-white/5" : ""}`}
-                  >
-                    <span className="text-white/70">{p.rank}</span>
-                    <span className="font-bold text-gold">{p.reward}</span>
+            <div>
+              <h3 className="text-champagne font-bold mb-2">Phần thưởng:</h3>
+              <div className="bg-champagne/10 rounded-md p-3 text-sm space-y-1">
+                {active.prizes.map((p) => (
+                  <div key={p.rank}>
+                    <strong>{p.rank}:</strong> {p.reward}
                   </div>
                 ))}
               </div>
             </div>
 
-            <p className="text-xs text-white/50 italic">Lưu ý: {active.note}</p>
+            <hr className="border-champagne/20 my-4" />
+
+            <div>
+              <h3 className="text-champagne font-bold mb-2">Lưu ý:</h3>
+              <p className="text-sm italic text-white/70">{active.note}</p>
+            </div>
+
+            <div className="text-center mt-6">
+              <button onClick={() => setActive(null)} className="btn-cyber px-8 py-2.5 text-sm">
+                Đóng
+              </button>
+            </div>
           </div>
         )}
       </Modal>
     </section>
-  );
-}
-
-function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-2 rounded-lg bg-white/5 px-3 py-2">
-      <span className="text-mint mt-0.5">{icon}</span>
-      <div>
-        <div className="text-[10px] uppercase text-white/40">{label}</div>
-        <div className="text-white/85">{value}</div>
-      </div>
-    </div>
   );
 }

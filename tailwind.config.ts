@@ -9,36 +9,47 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          DEFAULT: "#001514",
-          deep: "#000a09",
-          panel: "#04211f",
+          DEFAULT: "#050b1a",
+          deep: "#02060f",
+          header: "#10112d",
+          panel: "#0d1530",
+          row: "#0f1d4a",
         },
-        mint: {
-          DEFAULT: "#66e28e",
-          soft: "#a9f2c1",
+        blue: {
+          DEFAULT: "#3d94ff",
+          bright: "#7ee2ff",
+          deep: "#132a63",
         },
-        gold: {
-          DEFAULT: "#ffdd1b",
-          soft: "#f3b65d",
+        red: {
+          DEFAULT: "#ff4757",
+          bright: "#ff8a8a",
+          deep: "#e0263a",
         },
-        cyan: {
-          DEFAULT: "#00fcff",
+        champagne: {
+          DEFAULT: "#ffe066",
+          deep: "#ffc93c",
         },
-        danger: "#fc4a4d",
+        ink: "#010f08",
+        danger: "#ff4757",
+        success: "#3ddc84",
       },
       fontFamily: {
         display: ["var(--font-display)", "sans-serif"],
-        body: ["var(--font-body)", "sans-serif"],
       },
       backgroundImage: {
         "pitch-grid":
-          "linear-gradient(rgba(102,226,142,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(102,226,142,0.08) 1px, transparent 1px)",
+          "linear-gradient(rgba(126,226,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,71,87,0.07) 1px, transparent 1px)",
         "hero-glow":
-          "radial-gradient(60% 60% at 50% 20%, rgba(102,226,142,0.25) 0%, rgba(0,21,20,0) 70%)",
+          "radial-gradient(65% 65% at 30% 20%, rgba(126,226,255,0.3) 0%, rgba(5,11,26,0) 70%), radial-gradient(55% 55% at 75% 30%, rgba(255,71,87,0.25) 0%, rgba(5,11,26,0) 70%)",
+        "table-head": "linear-gradient(90deg, #3d94ff 0%, #ff4757 100%)",
+        "champagne-btn": "linear-gradient(180deg, #fff0b3 0%, #ffc93c 100%)",
+        "blue-btn": "linear-gradient(180deg, #7ee2ff 0%, #3d94ff 100%)",
+        "red-btn": "linear-gradient(180deg, #ff8a8a 0%, #ff4757 100%)",
       },
       boxShadow: {
-        neon: "0 0 20px rgba(102,226,142,0.35)",
-        gold: "0 0 20px rgba(255,221,27,0.35)",
+        blue: "0 0 24px rgba(126,226,255,0.5)",
+        red: "0 0 24px rgba(255,71,87,0.5)",
+        champagne: "0 0 16px rgba(255,224,102,0.55)",
       },
       keyframes: {
         float: {

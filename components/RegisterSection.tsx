@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { motion } from "framer-motion";
 import { CheckCircle2, XCircle } from "lucide-react";
 import Modal from "./Modal";
 
@@ -16,38 +15,23 @@ const EMPTY_FORM: FormState = { name: "", phone: "", coach: "", dob: "" };
 const DEMO_OTP = "123456";
 
 export default function RegisterSection() {
+  const [infoOpen, setInfoOpen] = useState(false);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  const [errors, setErrors] = useState<Partial<FormState>>({});
   const [otpOpen, setOtpOpen] = useState(false);
   const [otp, setOtp] = useState("");
-  const [otpError, setOtpError] = useState("");
   const [successOpen, setSuccessOpen] = useState(false);
   const [failedOpen, setFailedOpen] = useState(false);
 
-  function validate(): boolean {
-    const next: Partial<FormState> = {};
-    if (!form.name.trim()) next.name = "Vui lòng nhập họ tên";
-    if (!/^0\d{9}$/.test(form.phone)) next.phone = "Số điện thoại không hợp lệ";
-    if (!form.coach.trim()) next.coach = "Vui lòng nhập tên huấn luyện viên";
-    if (!form.dob) next.dob = "Vui lòng chọn ngày sinh";
-    setErrors(next);
-    return Object.keys(next).length === 0;
-  }
-
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!validate()) return;
+    if (!form.name || !/^0\d{9}$/.test(form.phone) || !form.dob) return;
+    setInfoOpen(false);
     setOtp("");
-    setOtpError("");
     setOtpOpen(true);
   }
 
   function handleOtpSubmit(e: FormEvent) {
     e.preventDefault();
-    if (otp.length !== 6) {
-      setOtpError("Mã OTP gồm 6 chữ số");
-      return;
-    }
     setOtpOpen(false);
     if (otp === DEMO_OTP) {
       setSuccessOpen(true);
@@ -58,116 +42,121 @@ export default function RegisterSection() {
   }
 
   return (
-    <section id="dang-ky" className="py-24 px-4 bg-bg-deep/40">
-      <div className="max-w-lg mx-auto">
-        <h2 className="section-heading">
-          Báo danh <span className="text-mint">thi đấu</span>
+    <section id="dang-ky" className="py-20 px-4 bg-bg-deep/40">
+      <div className="max-w-md mx-auto text-center">
+        <h2 className="title-page text-3xl sm:text-4xl mb-2">
+          <span className="tag text-6xl sm:text-7xl">Join</span>
+          Báo danh thi đấu
         </h2>
-        <p className="text-center text-white/60 mt-3 text-sm">
-          Điền thông tin bên dưới, hệ thống sẽ gửi mã OTP xác nhận qua SMS.
+        <p className="text-white/60 text-sm mt-4 mb-8">
+          Điền thông tin để nhận mã OTP xác nhận tham gia Summer Cup.
         </p>
-
-        <motion.form
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          onSubmit={handleSubmit}
-          className="mt-10 rounded-2xl bg-bg-panel border border-white/10 p-6 sm:p-8 flex flex-col gap-4"
-          noValidate
-        >
-          <Field
-            label="Họ và tên"
-            value={form.name}
-            error={errors.name}
-            onChange={(v) => setForm({ ...form, name: v })}
-            placeholder="Nguyễn Văn A"
-          />
-          <Field
-            label="Số điện thoại"
-            value={form.phone}
-            error={errors.phone}
-            onChange={(v) => setForm({ ...form, phone: v })}
-            placeholder="09xxxxxxxx"
-            inputMode="numeric"
-          />
-          <Field
-            label="Tên huấn luyện viên"
-            value={form.coach}
-            error={errors.coach}
-            onChange={(v) => setForm({ ...form, coach: v })}
-            placeholder="Tên hiển thị trên BXH"
-          />
-          <Field
-            label="Ngày sinh"
-            type="date"
-            value={form.dob}
-            error={errors.dob}
-            onChange={(v) => setForm({ ...form, dob: v })}
-          />
-
-          <button
-            type="submit"
-            className="mt-4 py-3 rounded-full bg-mint text-bg-deep font-bold hover:shadow-neon transition-shadow"
-          >
-            Gửi mã OTP
-          </button>
-        </motion.form>
+        <button onClick={() => setInfoOpen(true)} className="btn-cyber px-10 py-3 text-sm">
+          Báo Danh Ngay
+        </button>
       </div>
 
+      <Modal open={infoOpen} onClose={() => setInfoOpen(false)} labelledBy="info-title">
+        <h2 id="info-title" className="text-white uppercase text-xl font-black text-center mb-5">
+          Báo Danh Thi Đấu
+        </h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field
+              label="Họ và tên"
+              value={form.name}
+              onChange={(v) => setForm({ ...form, name: v })}
+              placeholder="Nhập họ và tên"
+            />
+            <Field
+              label="Số điện thoại"
+              value={form.phone}
+              onChange={(v) => setForm({ ...form, phone: v })}
+              placeholder="0xxx"
+              inputMode="numeric"
+            />
+            <Field
+              label="Tên HLV"
+              value={form.coach}
+              onChange={(v) => setForm({ ...form, coach: v })}
+              placeholder="Nhập tên HLV"
+            />
+            <Field
+              label="Ngày sinh"
+              type="date"
+              value={form.dob}
+              onChange={(v) => setForm({ ...form, dob: v })}
+            />
+          </div>
+
+          <div className="flex justify-center gap-3 mt-2">
+            <button type="submit" className="btn-cyber px-8 py-2.5 text-sm">
+              Xác Nhận
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm(EMPTY_FORM)}
+              className="btn-cyber-blue px-8 py-2.5 text-sm"
+            >
+              Làm lại
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       <Modal open={otpOpen} onClose={() => setOtpOpen(false)} labelledBy="otp-title">
-        <form onSubmit={handleOtpSubmit} className="flex flex-col gap-4">
-          <h3 id="otp-title" className="font-display text-lg">
-            Xác nhận tham gia thi đấu
-          </h3>
-          <p className="text-sm text-white/60">
-            Mã OTP đã được gửi tới số điện thoại {form.phone || "của bạn"}. Dùng mã demo{" "}
-            <span className="text-mint font-bold">{DEMO_OTP}</span> để xác nhận thành công.
-          </p>
+        <h2 id="otp-title" className="text-white uppercase text-xl font-black text-center mb-5">
+          Xác nhận tham gia thi đấu
+        </h2>
+        <form onSubmit={handleOtpSubmit} className="flex flex-col gap-4 items-center">
           <input
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
             inputMode="numeric"
             maxLength={6}
-            placeholder="000000"
-            className="text-center tracking-[0.5em] text-2xl font-display bg-bg border border-mint/30 rounded-xl py-3 focus:outline-none focus:border-mint"
+            placeholder="Nhập OTP"
+            className="w-full max-w-xs text-center tracking-[0.4em] bg-ink border border-blue rounded px-4 py-3 text-white focus:outline-none"
           />
-          {otpError && <span className="text-xs text-danger">{otpError}</span>}
-          <button
-            type="submit"
-            className="py-3 rounded-full bg-mint text-bg-deep font-bold hover:shadow-neon transition-shadow"
-          >
-            Xác nhận
+          <button type="submit" className="btn-cyber px-8 py-2.5 text-sm">
+            Xác nhận &amp; Hoàn Tất
           </button>
         </form>
+        <p className="text-center text-sm mt-5">
+          <span className="text-blue-bright font-bold">* Lưu ý:</span>{" "}
+          <span className="text-white/70">
+            OTP báo danh được gửi về số điện thoại của bạn để xác minh chính chủ tham gia
+            thi đấu. Dùng mã demo <span className="text-champagne font-bold">{DEMO_OTP}</span>.
+          </span>
+        </p>
       </Modal>
 
       <Modal open={successOpen} onClose={() => setSuccessOpen(false)} labelledBy="success-title">
-        <div className="flex flex-col items-center text-center gap-3 py-4">
-          <CheckCircle2 size={48} className="text-mint" />
-          <h3 id="success-title" className="font-display text-lg">
-            Đăng ký thành công!
-          </h3>
+        <div className="flex flex-col items-center text-center gap-3 py-2">
+          <CheckCircle2 size={44} className="text-success" />
+          <h2 id="success-title" className="text-white uppercase text-lg font-black">
+            Báo danh thành công!
+          </h2>
           <p className="text-sm text-white/60">
-            Cảm ơn bạn đã đăng ký tham gia Summer Cup. Ban tổ chức sẽ liên hệ xác nhận trong 48 giờ tới.
+            Cảm ơn bạn đã đăng ký tham gia Summer Cup. Ban tổ chức sẽ liên hệ xác nhận sớm nhất.
           </p>
         </div>
       </Modal>
 
       <Modal open={failedOpen} onClose={() => setFailedOpen(false)} labelledBy="failed-title">
-        <div className="flex flex-col items-center text-center gap-3 py-4">
-          <XCircle size={48} className="text-danger" />
-          <h3 id="failed-title" className="font-display text-lg">
+        <div className="flex flex-col items-center text-center gap-3 py-2">
+          <XCircle size={44} className="text-danger" />
+          <h2 id="failed-title" className="text-white uppercase text-lg font-black">
             Đăng Ký Không Thành Công
-          </h3>
-          <p className="text-sm text-white/60">Mã OTP không chính xác. Vui lòng thử lại.</p>
+          </h2>
+          <p className="text-sm text-danger">Mã OTP không chính xác. Vui lòng thử lại.</p>
           <button
             onClick={() => {
               setFailedOpen(false);
               setOtpOpen(true);
             }}
-            className="mt-2 px-6 py-2 rounded-full bg-mint text-bg-deep font-bold text-sm"
+            className="btn-cyber-blue px-8 py-2.5 text-sm mt-2"
           >
-            Thử lại
+            Thoát &amp; Báo Danh Lại
           </button>
         </div>
       </Modal>
@@ -179,7 +168,6 @@ function Field({
   label,
   value,
   onChange,
-  error,
   placeholder,
   type = "text",
   inputMode,
@@ -187,25 +175,21 @@ function Field({
   label: string;
   value: string;
   onChange: (v: string) => void;
-  error?: string;
   placeholder?: string;
   type?: string;
   inputMode?: "numeric" | "text";
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs uppercase text-white/50 font-bold">{label}</span>
+    <label className="flex flex-col gap-1.5 text-left">
+      <span className="text-xs uppercase text-white/70 font-bold">{label}</span>
       <input
         type={type}
         value={value}
         placeholder={placeholder}
         inputMode={inputMode}
         onChange={(e) => onChange(e.target.value)}
-        className={`bg-bg border rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors ${
-          error ? "border-danger" : "border-white/15 focus:border-mint"
-        }`}
+        className="bg-ink border border-blue rounded px-3 py-2.5 text-sm text-white focus:outline-none"
       />
-      {error && <span className="text-xs text-danger">{error}</span>}
     </label>
   );
 }

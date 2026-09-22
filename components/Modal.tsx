@@ -36,7 +36,7 @@ export default function Modal({
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/80"
             onClick={onClose}
           />
           <motion.div
@@ -47,12 +47,12 @@ export default function Modal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl bg-bg-panel border border-mint/30 shadow-neon p-6"
+            className="relative z-10 w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-md bg-bg-panel border border-champagne/40 shadow-champagne p-6"
           >
             <button
               onClick={onClose}
               aria-label="Đóng"
-              className="absolute top-4 right-4 text-white/60 hover:text-mint"
+              className="absolute top-4 right-4 text-white/60 hover:text-champagne"
             >
               <X size={20} />
             </button>

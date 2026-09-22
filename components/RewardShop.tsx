@@ -1,108 +1,96 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   Shirt,
   Keyboard,
   Mouse,
   Backpack,
-  CupSoda,
-  Image as ImageIcon,
-  KeyRound,
-  Sticker,
-  Coins,
 } from "lucide-react";
 import { REWARDS, USER_POINTS } from "@/lib/data";
+import Modal from "./Modal";
 
 const ICONS: Record<string, React.ReactNode> = {
   jersey: <Shirt size={28} />,
   keyboard: <Keyboard size={28} />,
   mouse: <Mouse size={28} />,
   bag: <Backpack size={28} />,
-  bottle: <CupSoda size={28} />,
-  poster: <ImageIcon size={28} />,
-  keychain: <KeyRound size={28} />,
-  sticker: <Sticker size={28} />,
 };
 
-export default function RewardShop() {
+export default function RewardShop({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
   const [points, setPoints] = useState(USER_POINTS);
-  const [redeemed, setRedeemed] = useState<string[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
+  const [claimed, setClaimed] = useState<Record<string, number>>({});
 
-  function redeem(id: string, cost: number, name: string) {
-    if (points < cost || redeemed.includes(id)) return;
+  function redeem(id: string, cost: number, limit: number) {
+    const current = claimed[id] ?? 0;
+    if (points < cost || current >= limit) return;
     setPoints((p) => p - cost);
-    setRedeemed((r) => [...r, id]);
-    setToast(`Đã đổi thành công: ${name}`);
-    setTimeout(() => setToast(null), 2500);
+    setClaimed((c) => ({ ...c, [id]: current + 1 }));
   }
 
   return (
-    <section id="doi-qua" className="py-24 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
-          <div>
-            <h2 className="text-left font-display text-3xl sm:text-4xl uppercase">
-              Shop <span className="text-mint">đổi quà</span>
-            </h2>
-            <p className="text-white/60 mt-2 text-sm">
-              Dùng điểm tích lũy để đổi quà lưu niệm chính thức từ giải đấu.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 rounded-full bg-bg-panel border border-gold/40 px-5 py-2 self-start sm:self-auto">
-            <Coins size={18} className="text-gold" />
-            <span className="font-display text-gold">{points}</span>
-            <span className="text-xs text-white/50 uppercase">điểm</span>
-          </div>
-        </div>
+    <Modal open={open} onClose={onClose} labelledBy="shop-title">
+      <h2
+        id="shop-title"
+        className="text-champagne uppercase text-xl font-black border-b-2 border-champagne pb-3 mb-4 shadow-champagne"
+      >
+        Shop đổi quà
+      </h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
-          {REWARDS.map((item, i) => {
-            const isRedeemed = redeemed.includes(item.id);
-            const canAfford = points >= item.cost;
-            return (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: (i % 4) * 0.06 }}
-                className="rounded-2xl bg-bg-panel border border-white/10 p-4 flex flex-col items-center text-center gap-3"
+      <p className="text-sm text-white/80 text-center mb-1 leading-relaxed">
+        Tích lũy điểm bằng cách đăng ký tham gia các giải đấu. Khi đạt thứ hạng cao cũng
+        sẽ mang lại cho bạn một điểm số nhất định. Hãy cố gắng thu thập nhiều điểm và đổi
+        các phần quà bên dưới ngay nhé!
+        <br />
+        Lưu ý: Điểm tích lũy và quà sẽ được thay đổi theo từng tháng.
+      </p>
+      <p className="text-champagne font-bold text-center mt-2 mb-5">
+        Điểm hiện có: {points}
+      </p>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {REWARDS.map((item) => {
+          const count = claimed[item.id] ?? 0;
+          const maxedOut = count >= item.limit;
+          const canAfford = points >= item.cost;
+          return (
+            <div
+              key={item.id}
+              className="rounded-md border border-champagne/15 bg-champagne/5 p-3 flex flex-col items-center gap-2 hover:border-champagne/50 hover:bg-champagne/10 transition-colors"
+            >
+              <div className="relative w-full aspect-square flex items-center justify-center text-champagne">
+                {ICONS[item.image]}
+                <span className="absolute -top-1 -right-1 bg-champagne text-ink text-[10px] font-bold px-1.5 py-0.5 rounded">
+                  {count}/{item.limit}
+                </span>
+              </div>
+              <button
+                onClick={() => redeem(item.id, item.cost, item.limit)}
+                disabled={maxedOut || !canAfford}
+                className={`w-full text-xs font-bold uppercase py-1.5 rounded transition-colors ${
+                  maxedOut || !canAfford
+                    ? "bg-white/10 text-white/30 cursor-not-allowed"
+                    : "bg-champagne-btn text-ink hover:brightness-110"
+                }`}
               >
-                <div className="w-16 h-16 rounded-full bg-mint/10 text-mint flex items-center justify-center">
-                  {ICONS[item.image]}
-                </div>
-                <h3 className="text-sm font-bold leading-snug min-h-[2.5rem]">{item.name}</h3>
-                <span className="text-xs text-white/40">Còn {item.stock} phần</span>
-                <div className="flex items-center gap-1 text-gold font-display text-sm">
-                  <Coins size={14} /> {item.cost}
-                </div>
-                <button
-                  onClick={() => redeem(item.id, item.cost, item.name)}
-                  disabled={isRedeemed || !canAfford}
-                  className={`w-full py-2 rounded-full text-xs font-bold transition-colors ${
-                    isRedeemed
-                      ? "bg-white/10 text-white/40 cursor-not-allowed"
-                      : canAfford
-                      ? "bg-mint text-bg-deep hover:shadow-neon"
-                      : "bg-white/10 text-white/30 cursor-not-allowed"
-                  }`}
-                >
-                  {isRedeemed ? "Đã đổi" : canAfford ? "Đổi ngay" : "Không đủ điểm"}
-                </button>
-              </motion.div>
-            );
-          })}
-        </div>
+                {maxedOut ? "Đã đổi" : `${item.cost} điểm`}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
-      {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[200] bg-mint text-bg-deep font-bold text-sm px-5 py-3 rounded-full shadow-neon">
-          {toast}
-        </div>
-      )}
-    </section>
+      <div className="text-center mt-6">
+        <button onClick={onClose} className="btn-cyber px-10 py-2.5 text-sm">
+          Xác nhận
+        </button>
+      </div>
+    </Modal>
   );
 }

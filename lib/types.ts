@@ -6,15 +6,14 @@ export type PrizeRow = {
 export type Team = {
   id: string;
   name: string;
-  shortName: string;
-  color: string;
+  requirement: string;
+  format: string;
   members: number;
   maxMembers: number;
+  location: string;
   tier: string;
   venue: string;
   audience: string;
-  eventDate: string;
-  registerDeadline: string;
   contactName: string;
   contactPhone: string;
   note: string;
@@ -24,9 +23,8 @@ export type Team = {
 export type LeaderboardEntry = {
   rank: number;
   name: string;
-  team: string;
-  points: number;
   medals: { gold: number; silver: number; bronze: number };
+  points: number;
 };
 
 export type RewardItem = {
@@ -34,48 +32,14 @@ export type RewardItem = {
   name: string;
   cost: number;
   image: string;
-  stock: number;
+  claimed: number;
+  limit: number;
 };
 
-export type TournamentStatus = "live" | "open" | "upcoming";
-
-export type Tournament = {
+export type ExclusiveReward = {
   id: string;
+  number: string;
   name: string;
-  tag: string;
-  status: TournamentStatus;
-  dateRange: string;
-  format: string;
-  totalPrize: string;
-  color: string;
-};
-
-export type MatchStage = "Vòng bảng" | "Playoff" | "Chung kết";
-
-export type Match = {
-  id: string;
-  date: string;
-  time: string;
-  teamA: string;
-  teamB: string;
-  stage: MatchStage;
-  played: boolean;
-};
-
-export type StandingRow = {
-  team: string;
-  color: string;
-  played: number;
-  win: number;
-  draw: number;
-  lose: number;
-  points: number;
-};
-
-export type NewsItem = {
-  id: string;
-  date: string;
-  title: string;
-  excerpt: string;
-  tag: string;
+  image: string;
+  isNew: boolean;
 };
